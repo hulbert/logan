@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>HAProxy Log Analyzer</title>
+
+        <link rel="stylesheet" href="main.css">
+		
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="logan.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			jQuery(document).ready(function($) {
+				$('#log_text').on('change', function(ev) {
+					var result = Logan.analyzeHttpLog($(this).val());
+					
+					$('<h2>JSON:</h2><textarea id="json_results"></textarea>').val( JSON.stringify(result, undefined, 2) ).appendTo('body');
+					$('#results').html("<table></table>");
+					
+					$.each(result, function(key, value) {
+						var valType = $.type(value);
+						if (valType !== 'string' && valType !== 'number') {
+							var $table = $("<table></table>");
+							$.each(value, function(key2, value2) {
+								$table.append(getRow(key2, value2));
+							})
+							value = "<table>" + $table.html() + "</table>";
+						} 
+						$('#results > table').append( getRow(key, value) );
+					})
+				});
+				
+				function getRow(key, value) {
+					if (value !== undefined) {
+						var $tr = $( "<tr><th>"+key+"</th><td>"+value+"</td></tr>");
+						return $tr;
+					}
+				}
+			});
+		
+		</script>
+    </head>
+	
+    <body>
+		
+		<hgroup>
+			<h1>HAProxy Log Analyzer</h1>
+			<h2>aka Logan</h2>
+		</hgroup>
+		
+		<textarea placeholder="Paste your log here" id="log_text"></textarea>
+		
+		<div id="results">
+			
+		</div>
+		
+		
+    </body>
+</html>
