@@ -4,6 +4,9 @@ body {
 	font-size: 14pt;
 }
 
+body a {
+	color: #105784;
+}
 body h1 {
 	margin-top: 0;
 	padding-top: 0;
@@ -67,4 +70,32 @@ table tr th {
 
 table tr td th {
 	background-color: transparent;
+}
+
+#ie9up {
+	display: none;
+}
+
+.lt-ie9 #ie9up {
+	display: block;
+	width: 100%;
+	padding-left: .4em;
+	height: 24px;
+	line-height: 24px;
+	background-color: #444;
+	color: #fff;
+	box-sizing: border-box;
+}
+
+#moreinfo_link {
+	color: inherit;
+	text-decoration: underline;
+	font-size: .6em;
+	cursor: pointer;
+}
+
+#moreinfo {
+	display: none;
+	max-width: 800px;
+	margin-bottom: 1em;
 }

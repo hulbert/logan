@@ -5,24 +5,22 @@
 		if (logLine == undefined) return {};
 	
 		var logInfo = {};
+		var logLine = logLine.trim();
 		var logItems = logLine.split(' ');
+		if (logItems.length < 17) return {};
 	
 		logInfo.date = logItems.slice(0,3).join(' ');
 		
 		logInfo.request = logLine.split('"')[1];
 		
 		// Edlio specific
-		logInfo.hostname = logItems[17].substr(1, logItems[17].length - 2)
+		logInfo.custom_request_capture = logItems[17].substr(1, logItems[17].length - 2)
 		
-		logInfo.host = logItems[3];
-		logInfo.process = {
-			name: logItems[4].split('[')[0],
-			id: logItems[4].split('[')[1].replace(']','').replace(':','')
-		}
 		logInfo.client = {
 			ip: logItems[5].split(':')[0],
 			port: logItems[5].split(':')[1]
 		}
+		
 		// TODO accept date
 		logInfo.frontend = logItems[7];
 		logInfo.backend = {
@@ -40,17 +38,17 @@
 		}
 		logInfo.status_code = parseInt(logItems[10], 10);
 		logInfo.bytes_sent = parseInt(logItems[11], 10);
-		logInfo.captured_request_cookie = logItems[12];
-		logInfo.captured_response_cookie = logItems[13];
-	
+		if (logItems[12] !== '-') logInfo.captured_request_cookie = logItems[12];
+		if (logItems[13] !== '-') logInfo.captured_response_cookie = logItems[13];
+		
 		var tState = logItems[14];
 		logInfo.termination_state = {
-			'raw': tState,
 			'cause': causeMap( tState.charAt(0) ),
 			'state': stateMap( tState.charAt(1) ),
 			'cookiePresence': cookiePresence( tState.charAt(2) ),
 			'cookieAction': cookieAction( tState.charAt(3) ),
-			'explanation': detailedExplanation( tState.substr(0,1) )
+			'explanation': detailedExplanation( tState.substr(0,1) ),
+			'raw': tState
 		}
 	
 		var connections = logItems[15].split('/')  // '2581/2581/1942/100/0' ~ actconn '/' feconn '/' beconn '/' srv_conn '/' retries*
@@ -66,8 +64,13 @@
 			'server': parseInt(queues[0], 10),
 			'backend': parseInt(queues[1], 10)
 		}
-	
-	
+		
+		
+		logInfo.host = logItems[3];
+		logInfo.process = {
+			name: logItems[4].split('[')[0],
+			id: logItems[4].split('[')[1].replace(']','').replace(':','')
+		}
 
 
 		return logInfo;

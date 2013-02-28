@@ -14,17 +14,28 @@
         <script src="logan.js"></script>
 		<script type="text/javascript" charset="utf-8">
 			jQuery(document).ready(function($) {
-				$('#log_text').on('change', function(ev) {
-					var result = Logan.analyzeHttpLog($(this).val());
+				$('#log_analyze').on('click', function(ev) {
+					var result = Logan.analyzeHttpLog($('#log_text').val());
+					if (!result.hasOwnProperty('date')) {
+						alert("alert didn't work");
+						return;
+					}
+					if ( $('#json_results').length < 1 ) {
+						$('<h2>JSON:</h2><textarea id="json_results"></textarea>').appendTo('body')
+					}
 					
-					$('<h2>JSON:</h2><textarea id="json_results"></textarea>').val( JSON.stringify(result, undefined, 2) ).appendTo('body');
+					$('#json_results').val( JSON.stringify(result, undefined, 2) );
 					$('#results').html("<table></table>");
 					
 					$.each(result, function(key, value) {
 						var valType = $.type(value);
+						if (valType == 'string') value = htmlspecialchars(value);
 						if (valType !== 'string' && valType !== 'number') {
 							var $table = $("<table></table>");
+							var appendMs = false;
+							if (key == 'timers') appendMs = true;
 							$.each(value, function(key2, value2) {
+								if ($.type(value2) == 'number' && value2 > 0 && appendMs) value2 = value2 + "ms";
 								$table.append(getRow(key2, value2));
 							})
 							value = "<table>" + $table.html() + "</table>";
@@ -33,11 +44,20 @@
 					})
 				});
 				
+				$('#moreinfo_link').on('click', function(ev) {
+					$('#moreinfo').slideToggle();
+				})
+				
 				function getRow(key, value) {
 					if (value !== undefined) {
 						var $tr = $( "<tr><th>"+key+"</th><td>"+value+"</td></tr>");
 						return $tr;
 					}
+				}
+				
+				// from http://stackoverflow.com/questions/5499078/fastest-method-to-escape-html-tags-as-html-entities
+				function htmlspecialchars(str) {
+				    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 				}
 			});
 		
@@ -46,13 +66,27 @@
 	
     <body>
 		
+		<div id="ie9up">This page requires IE9 or greater.</div>
+		
 		<hgroup>
 			<h1>HAProxy Log Analyzer</h1>
-			<h2>aka Logan</h2>
+			<h2>aka Logan <a id="moreinfo_link">Huh?</a></h2>
 		</hgroup>
 		
-		<textarea placeholder="Paste your log here" id="log_text"></textarea>
+		<div id="moreinfo">
+			This is a quick project thrown together by 
+			<a href="http://www.scotthulbert.com">Scott Hulbert</a> at <a href="http://www.edlio.com">Edlio</a>
+			to speed up the reading of <a href="http://haproxy.1wt.eu">HAProxy</a> HTTP logs. 
+			HAProxy is an awesome tool, and its logs are fantastic, 
+			but they're a bit dense to scan so we made Logan. 
+			All the parsing happens in Javascript, <a href="logan.js">in your browser</a>, so you don't need to worry
+			about any privacy or security implications.
+		</div>
 		
+		<div>
+			<textarea placeholder="Paste your log here" id="log_text"></textarea>
+			<button id="log_analyze" style="display: block;">Analyze</button>
+		</div>
 		<div id="results">
 			
 		</div>
