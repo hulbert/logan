@@ -6,9 +6,8 @@
 	
 		var logInfo = {};
 		var logLine = logLine.trim();
-		var logItems = logLine.split(' ');
+		var logItems = logLine.split(/\s+/);
 		
-		if (logItems[1] == '') logItems.splice(1,1);
 		if (logItems.length < 17) return {};
 	
 		logInfo.date = logItems.slice(0,3).join(' ');
