@@ -17,7 +17,7 @@
 				$('#log_analyze').on('click', function(ev) {
 					var result = Logan.analyzeHttpLog($('#log_text').val());
 					if (!result.hasOwnProperty('date')) {
-						alert("alert didn't work");
+						alert("Couldn't analyze");
 						return;
 					}
 					if ( $('#json_results').length < 1 ) {
